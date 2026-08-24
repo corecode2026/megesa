@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>استوديو صور المنتجات — سلة بيت</title>
+<style>
+:root{
+  --bg:#FAF7F0;
+  --surface:#FFFFFF;
+  --ink:#1C2B22;
+  --muted:#7C8A80;
+  --border:#E7E1D2;
+  --primary:#1F4D3A;
+  --primary-light:#2E6B4F;
+  --primary-dark:#153327;
+  --accent:#E07A3F;
+  --accent-dark:#C7642E;
+  --danger:#C1443C;
+  --danger-dark:#A5372F;
+  --chip:#F1ECDF;
+  --radius:14px;
+  --radius-sm:8px;
+  --shadow:0 6px 20px rgba(28,43,34,0.08);
+  --shadow-lg:0 20px 60px rgba(28,43,34,0.25);
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Segoe UI',Tahoma,Arial,sans-serif;
+  min-height:100vh;
+}
+h1,h2,h3,.display{font-family:'Segoe UI',Tahoma,Arial,sans-serif;font-weight:800;}
+
+input[type="number"]{direction:ltr;text-align:center;}
+
+/* ---------- layout ---------- */
+.app{max-width:1180px;margin:0 auto;padding:28px 20px 80px;}
+
+.header{
+  display:flex;align-items:center;gap:14px;
+  margin-bottom:26px;
+}
+.logo{
+  width:46px;height:46px;border-radius:12px;
+  background:linear-gradient(155deg,var(--primary),var(--primary-light));
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;flex-shrink:0;box-shadow:var(--shadow);
+}
+.header h1{font-size:22px;font-weight:800;margin:0;color:var(--primary-dark);}
+.header p{margin:2px 0 0;font-size:13.5px;color:var(--muted);}
+
+/* ---------- buttons ---------- */
+.btn{
+  border:none;cursor:pointer;font-family:inherit;
+  font-size:14px;font-weight:700;border-radius:var(--radius-sm);
+  padding:10px 16px;display:inline-flex;align-items:center;gap:8px;
+  transition:transform .12s ease, box-shadow .12s ease, background .15s ease;
+  white-space:nowrap;
+}
+.btn:active{transform:scale(0.97);}
+.btn-primary{background:var(--primary);color:#fff;}
+.btn-primary:hover{background:var(--primary-light);}
+.btn-accent{background:var(--accent);color:#fff;}
+.btn-accent:hover{background:var(--accent-dark);}
+.btn-ghost{background:var(--surface);color:var(--ink);border:1px solid var(--border);}
+.btn-ghost:hover{background:var(--chip);}
+.btn-danger{background:#fff;color:var(--danger);border:1px solid #EAC9C6;}
+.btn-danger:hover{background:#FDF1F0;}
+.btn-sm{padding:7px 11px;font-size:12.5px;border-radius:7px;}
+.btn-icon{padding:8px;border-radius:8px;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+
+/* ---------- dropzone ---------- */
+.dropzone{
+  border:2px dashed #C9BFA0;border-radius:var(--radius);
+  background:var(--surface);
+  padding:56px 20px;text-align:center;cursor:pointer;
+  transition:border-color .15s ease, background .15s ease;
+}
+.dropzone.drag{border-color:var(--accent);background:#FFF6EE;}
+.dropzone svg{color:var(--accent);margin-bottom:10px;}
+.dropzone h3{margin:0 0 6px;font-size:17px;color:var(--primary-dark);}
+.dropzone p{margin:0;color:var(--muted);font-size:13.5px;}
+
+/* ---------- toolbar ---------- */
+.toolbar{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;margin:22px 0 16px;
+}
+.toolbar .left, .toolbar .right{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.count-chip{
+  background:var(--chip);color:var(--primary-dark);
+  font-size:12.5px;font-weight:700;padding:6px 12px;border-radius:999px;
+}
+.batchbar{
+  display:none;align-items:center;gap:8px;flex-wrap:wrap;
+  background:var(--primary-dark);color:#fff;padding:12px 16px;border-radius:var(--radius-sm);
+  margin-bottom:16px;
+}
+.batchbar.show{display:flex;}
+.batchbar span{font-size:13px;font-weight:700;margin-left:6px;}
+.batchbar .btn-ghost{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.25);}
+.batchbar .btn-ghost:hover{background:rgba(255,255,255,.18);}
+
+/* ---------- gallery ---------- */
+.gallery{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));
+  gap:16px;
+}
+.card{
+  background:var(--surface);border-radius:var(--radius);
+  border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow);
+  position:relative;
+}
+.card .thumb-wrap{
+  aspect-ratio:1/1;position:relative;
+  background-image:
+    linear-gradient(45deg,#EFEAD9 25%,transparent 25%),
+    linear-gradient(-45deg,#EFEAD9 25%,transparent 25%),
+    linear-gradient(45deg,transparent 75%,#EFEAD9 75%),
+    linear-gradient(-45deg,transparent 75%,#EFEAD9 75%);
+  background-size:18px 18px;background-position:0 0,0 9px,9px -9px,-9px 0;
+  background-color:#fff;
+}
+.card img.thumb{width:100%;height:100%;object-fit:contain;display:block;}
+.card .check{
+  position:absolute;top:8px;right:8px;width:22px;height:22px;
+  border-radius:6px;border:2px solid #fff;background:rgba(28,43,34,.35);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+.card .check.checked{background:var(--accent);border-color:var(--accent);}
+.card .check svg{width:13px;height:13px;color:#fff;opacity:0;}
+.card .check.checked svg{opacity:1;}
+.card .name{
+  font-size:12px;color:var(--muted);padding:8px 10px 2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.card .actions{
+  display:flex;gap:6px;padding:6px 8px 10px;
+}
+.card .actions .btn{flex:1;justify-content:center;padding:7px 6px;}
+
+/* ---------- empty state within gallery ---------- */
+.hint{color:var(--muted);font-size:13px;margin-top:10px;line-height:1.9;}
+.hint b{color:var(--ink);}
+
+/* ---------- modal / editor ---------- */
+.overlay{
+  position:fixed;inset:0;background:rgba(20,26,22,.55);
+  display:none;align-items:center;justify-content:center;z-index:50;
+  padding:18px;backdrop-filter:blur(2px);
+}
+.overlay.show{display:flex;}
+.editor{
+  background:var(--surface);border-radius:16px;box-shadow:var(--shadow-lg);
+  width:100%;max-width:980px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;
+}
+.editor-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid var(--border);
+}
+.editor-head h3{margin:0;font-size:16px;}
+.editor-body{
+  display:flex;flex:1;min-height:0;
+}
+@media(max-width:760px){.editor-body{flex-direction:column;}}
+
+.canvas-zone{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:20px;position:relative;min-height:320px;
+  background-image:
+    linear-gradient(45deg,#EFEAD9 25%,transparent 25%),
+    linear-gradient(-45deg,#EFEAD9 25%,transparent 25%),
+    linear-gradient(45deg,transparent 75%,#EFEAD9 75%),
+    linear-gradient(-45deg,transparent 75%,#EFEAD9 75%);
+  background-size:22px 22px;background-position:0 0,0 11px,11px -11px,-11px 0;
+  background-color:#FAFAF6;
+}
+.canvas-stack{position:relative;max-width:100%;max-height:100%;}
+.canvas-stack canvas{display:block;max-width:100%;max-height:56vh;border-radius:6px;}
+#canvasBefore{position:absolute;top:0;right:0;}
+.compare-labels{
+  position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;
+  pointer-events:none;font-size:11px;font-weight:700;
+}
+.compare-labels span{background:rgba(28,43,34,.65);color:#fff;padding:3px 9px;border-radius:999px;}
+.compare-slider{
+  position:absolute;top:0;bottom:0;width:100%;
+  writing-mode:vertical-lr;
+  -webkit-appearance:none;appearance:none;background:transparent;margin:0;
+}
+.compare-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;width:34px;height:34px;border-radius:50%;
+  background:var(--accent);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:ew-resize;margin-top:0;
+}
+.crop-overlay{position:absolute;border:2px dashed var(--accent);background:rgba(224,122,63,.12);pointer-events:none;}
+
+.tools{
+  width:270px;flex-shrink:0;border-right:1px solid var(--border);
+  overflow-y:auto;padding:14px;
+}
+@media(max-width:760px){.tools{width:100%;border-right:none;border-top:1px solid var(--border);}}
+
+.tabs{display:flex;gap:6px;margin-bottom:14px;background:var(--chip);padding:4px;border-radius:10px;}
+.tab{
+  flex:1;text-align:center;padding:8px 4px;border-radius:7px;cursor:pointer;
+  font-size:12.5px;font-weight:700;color:var(--muted);
+}
+.tab.active{background:#fff;color:var(--primary-dark);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+
+.panel{display:none;}
+.panel.active{display:block;}
+
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+.field .sub{font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.7;}
+input[type="range"]{width:100%;accent-color:var(--accent);}
+.range-row{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:2px;}
+
+.seg{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.seg button{
+  flex:1;border:none;background:#fff;padding:8px 4px;font-size:12px;font-weight:700;
+  color:var(--muted);cursor:pointer;font-family:inherit;
+}
+.seg button.active{background:var(--primary);color:#fff;}
+
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.presets .btn{font-size:11.5px;padding:6px 10px;}
+
+.dim-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.dim-row input{width:100%;padding:8px;border:1px solid var(--border);border-radius:7px;font-size:13px;}
+.dim-x{color:var(--muted);font-size:13px;}
+
+.checkline{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink);margin-bottom:12px;}
+.checkline input{accent-color:var(--accent);width:15px;height:15px;}
+
+.stack-btn{width:100%;margin-bottom:8px;justify-content:center;}
+
+.editor-foot{
+  display:flex;justify-content:space-between;gap:8px;padding:12px 16px;
+  border-top:1px solid var(--border);flex-wrap:wrap;
+}
+.editor-foot .grp{display:flex;gap:8px;}
+
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:var(--primary-dark);color:#fff;padding:10px 20px;border-radius:999px;
+  font-size:13px;font-weight:700;box-shadow:var(--shadow-lg);opacity:0;
+  transition:opacity .25s ease, transform .25s ease;pointer-events:none;z-index:80;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
+
+.popover{
+  position:absolute;background:#fff;border:1px solid var(--border);border-radius:12px;
+  box-shadow:var(--shadow-lg);padding:14px;z-index:60;width:230px;display:none;
+}
+.popover.show{display:block;}
+
+::-webkit-scrollbar{width:8px;}
+::-webkit-scrollbar-thumb{background:#D9D2BC;border-radius:8px;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <div class="logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h16l-1.5 12h-13z"></path><path d="M4 3l-1 -1"></path><circle cx="9" cy="20" r="1.4" fill="currentColor" stroke="none"></circle><circle cx="17" cy="20" r="1.4" fill="currentColor" stroke="none"></circle></svg>
+    </div>
+    <div>
+      <h1>استوديو صور المنتجات</h1>
+      <p>ارفع صور المنتجات، شيل الخلفية، وغيّر المقاس — لمتجر سلة بيت</p>
+    </div>
+  </div>
+
+  <div id="dropzone" class="dropzone">
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 0 1 -1.5 -7.7 5 5 0 0 1 9.7 -2.3 4.5 4.5 0 0 1 1.8 8.6"></path><path d="M12 12v8"></path><path d="M9 15l3 -3 3 3"></path></svg>
+    <h3>اسحب صور المنتجات هنا</h3>
+    <p>أو انقر لاختيار صور من جهازك (JPG أو PNG)</p>
+  </div>
+  <input type="file" id="fileInput" accept="image/*" multiple style="display:none;">
+
+  <p class="hint" id="emptyHint"><b>ما في صور بعد.</b> ارفع صورة منتج وابدأ: إزالة خلفية، تغيير حجم، وتنزيل جاهزة للمتجر.</p>
+
+  <div id="batchbar" class="batchbar">
+    <span id="selCount">0 محددة</span>
+    <button class="btn btn-ghost btn-sm" id="batchBg">إزالة الخلفية تلقائيًا</button>
+    <button class="btn btn-ghost btn-sm" id="batchResizeBtn">تغيير الحجم</button>
+    <button class="btn btn-ghost btn-sm" id="batchZip">تنزيل المحدد</button>
+    <button class="btn btn-ghost btn-sm" id="batchDelete">حذف</button>
+    <button class="btn btn-ghost btn-sm" id="batchClear">إلغاء التحديد</button>
+  </div>
+
+  <div class="toolbar" id="mainToolbar" style="display:none;">
+    <div class="left"><span class="count-chip" id="galCount">0 صورة</span></div>
+    <div class="right">
+      <button class="btn btn-ghost btn-sm" id="selectAllBtn">تحديد الكل</button>
+      <button class="btn btn-ghost btn-sm" id="zipAllBtn">تنزيل الكل</button>
+    </div>
+  </div>
+
+  <div class="gallery" id="gallery"></div>
+</div>
+
+<!-- resize popover for batch -->
+<div class="popover" id="resizePopover">
+  <div class="field" style="margin-bottom:10px;">
+    <label>العرض × الارتفاع (بكسل)</label>
+    <div class="dim-row">
+      <input type="number" id="popW" value="800" min="10">
+      <span class="dim-x">×</span>
+      <input type="number" id="popH" value="800" min="10">
+    </div>
+  </div>
+  <button class="btn btn-accent stack-btn" id="popApply">تطبيق على المحدد</button>
+  <button class="btn btn-ghost stack-btn" id="popCancel">إلغاء</button>
+</div>
+
+<!-- editor modal -->
+<div class="overlay" id="overlay">
+  <div class="editor">
+    <div class="editor-head">
+      <h3 id="editorTitle">تعديل الصورة</h3>
+      <button class="btn btn-icon btn-ghost" id="closeEditor">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+      </button>
+    </div>
+    <div class="editor-body">
+      <div class="canvas-zone" id="canvasZone">
+        <div class="canvas-stack" id="canvasStack">
+          <canvas id="canvasAfter"></canvas>
+          <canvas id="canvasBefore"></canvas>
+          <div class="compare-labels" id="compareLabels" style="display:none;">
+            <span>بعد</span><span>قبل</span>
+          </div>
+          <input type="range" id="compareSlider" class="compare-slider" min="0" max="100" value="50" style="display:none;">
+        </div>
+      </div>
+      <div class="tools">
+        <div class="tabs">
+          <div class="tab active" data-tab="bg">الخلفية</div>
+          <div class="tab" data-tab="resize">الحجم</div>
+          <div class="tab" data-tab="crop">القص</div>
+        </div>
+
+        <div class="panel active" id="panel-bg">
+          <div class="field">
+            <label>درجة الحساسية للألوان</label>
+            <input type="range" id="tolerance" min="5" max="120" value="32">
+            <div class="range-row"><span>دقيق</span><span id="tolVal">32</span><span>واسع</span></div>
+          </div>
+          <button class="btn btn-accent stack-btn" id="autoRemove">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0 -18 0"></path><path d="M9 12l2 2 4-4"></path></svg>
+            إزالة تلقائية من الحواف
+          </button>
+          <button class="btn btn-ghost stack-btn" id="pickColorBtn">انقر على الصورة لاختيار لون الخلفية</button>
+
+          <div class="field" style="margin-top:18px;">
+            <label>تنعيم الحواف يدويًا</label>
+            <div class="seg" style="margin-bottom:10px;">
+              <button class="seg-brush active" data-mode="erase">محو</button>
+              <button class="seg-brush" data-mode="restore">استعادة</button>
+            </div>
+            <input type="range" id="brushSize" min="4" max="80" value="22">
+            <div class="range-row"><span>حجم الفرشاة</span><span id="brushVal">22</span></div>
+            <p class="sub">فعّل الفرشاة وارسم فوق الصورة لتصحيح الحواف يدويًا بعد الإزالة التلقائية.</p>
+            <button class="btn btn-ghost stack-btn" id="brushToggle" style="margin-top:8px;">تفعيل الفرشاة</button>
+          </div>
+
+          <div class="field" id="compareField" style="display:none;">
+            <label>مقارنة قبل / بعد</label>
+            <p class="sub">اسحب المقبض على الصورة للمقارنة.</p>
+          </div>
+        </div>
+
+        <div class="panel" id="panel-resize">
+          <div class="field">
+            <label>مقاسات جاهزة</label>
+            <div class="presets">
+              <button class="btn btn-ghost preset" data-w="500" data-h="500">500×500</button>
+              <button class="btn btn-ghost preset" data-w="800" data-h="800">800×800</button>
+              <button class="btn btn-ghost preset" data-w="1000" data-h="1000">1000×1000</button>
+              <button class="btn btn-ghost preset" data-w="1200" data-h="1200">1200×1200</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>مقاس مخصص (بكسل)</label>
+            <div class="dim-row">
+              <input type="number" id="resizeW" min="10">
+              <span class="dim-x">×</span>
+              <input type="number" id="resizeH" min="10">
+            </div>
+            <div class="checkline">
+              <input type="checkbox" id="lockAspect" checked>
+              <label for="lockAspect" style="margin:0;font-weight:500;">الحفاظ على نسبة الأبعاد</label>
+            </div>
+          </div>
+          <button class="btn btn-accent stack-btn" id="applyResize">تطبيق الحجم الجديد</button>
+        </div>
+
+        <div class="panel" id="panel-crop">
+          <p class="sub" style="margin-bottom:12px;">ارسم مربعًا على الصورة بالماوس لتحديد منطقة القص، ثم اضغط تطبيق.</p>
+          <button class="btn btn-accent stack-btn" id="applyCrop">تطبيق القص</button>
+          <button class="btn btn-ghost stack-btn" id="clearCrop">إلغاء التحديد</button>
+        </div>
+      </div>
+    </div>
+    <div class="editor-foot">
+      <div class="grp">
+        <button class="btn btn-ghost btn-sm" id="undoBtn">تراجع</button>
+        <button class="btn btn-danger btn-sm" id="resetBtn">استعادة الأصل</button>
+      </div>
+      <button class="btn btn-primary" id="downloadOne">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"></path><path d="M8 11l4 4 4-4"></path><path d="M5 20h14"></path></svg>
+        تنزيل PNG
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  const MAX_DIM = 1400;
+  const state = { images: [], activeId: null };
+
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+  const dropzone = $('#dropzone');
+  const fileInput = $('#fileInput');
+  const gallery = $('#gallery');
+  const emptyHint = $('#emptyHint');
+  const mainToolbar = $('#mainToolbar');
+  const galCount = $('#galCount');
+  const batchbar = $('#batchbar');
+  const selCount = $('#selCount');
+
+  function uid(){ return 'img_' + Math.random().toString(36).slice(2,10); }
+
+  function toast(msg){
+    const t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(()=>t.classList.remove('show'), 1800);
+  }
+
+  /* ---------------- upload ---------------- */
+  ['dragenter','dragover'].forEach(ev=>dropzone.addEventListener(ev, e=>{
+    e.preventDefault(); dropzone.classList.add('drag');
+  }));
+  ['dragleave','drop'].forEach(ev=>dropzone.addEventListener(ev, e=>{
+    e.preventDefault(); dropzone.classList.remove('drag');
+  }));
+  dropzone.addEventListener('drop', e=>{
+    handleFiles(e.dataTransfer.files);
+  });
+  dropzone.addEventListener('click', ()=>fileInput.click());
+  fileInput.addEventListener('change', e=>handleFiles(e.target.files));
+
+  function handleFiles(fileList){
+    const files = Array.from(fileList).filter(f=>f.type.startsWith('image/'));
+    if(!files.length) return;
+    files.forEach(loadFile);
+  }
+
+  function loadFile(file){
+    const reader = new FileReader();
+    reader.onload = e=>{
+      const img = new Image();
+      img.onload = ()=>{
+        let w = img.naturalWidth, h = img.naturalHeight;
+        const scale = Math.min(1, MAX_DIM / Math.max(w,h));
+        w = Math.round(w*scale); h = Math.round(h*scale);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d', {willReadFrequently:true});
+        ctx.drawImage(img, 0, 0, w, h);
+
+        const originalData = ctx.getImageData(0,0,w,h);
+
+        const record = {
+          id: uid(),
+          name: file.name.replace(/\.[^.]+$/, '') + '.png',
+          canvas, ctx,
+          originalData,
+          originalW: w, originalH: h,
+          history: null,
+          selected: false
+        };
+        state.images.push(record);
+        renderGallery();
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /* ---------------- gallery rendering ---------------- */
+  function renderGallery(){
+    gallery.innerHTML = '';
+    const has = state.images.length > 0;
+    emptyHint.style.display = has ? 'none' : 'block';
+    mainToolbar.style.display = has ? 'flex' : 'none';
+    galCount.textContent = state.images.length + ' صورة';
+
+    state.images.forEach(rec=>{
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="thumb-wrap">
+          <img class="thumb" src="${rec.canvas.toDataURL('image/png')}">
+          <div class="check ${rec.selected?'checked':''}" data-id="${rec.id}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+          </div>
+        </div>
+        <div class="name">${rec.name}</div>
+        <div class="actions">
+          <button class="btn btn-ghost btn-sm edit-btn" data-id="${rec.id}">تعديل</button>
+          <button class="btn btn-ghost btn-icon btn-sm dl-btn" data-id="${rec.id}" title="تنزيل">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"></path><path d="M8 11l4 4 4-4"></path><path d="M5 20h14"></path></svg>
+          </button>
+          <button class="btn btn-danger btn-icon btn-sm del-btn" data-id="${rec.id}" title="حذف">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"></path><path d="M10 11v6M14 11v6"></path><path d="M6 7l1 13h10l1-13"></path><path d="M9 7V4h6v3"></path></svg>
+          </button>
+        </div>`;
+      gallery.appendChild(card);
+    });
+
+    updateBatchbar();
+  }
+
+  gallery.addEventListener('click', e=>{
+    const chk = e.target.closest('.check');
+    if(chk){
+      const rec = findImg(chk.dataset.id);
+      rec.selected = !rec.selected;
+      renderGallery();
+      return;
+    }
+    const editBtn = e.target.closest('.edit-btn');
+    if(editBtn){ openEditor(editBtn.dataset.id); return; }
+    const dlBtn = e.target.closest('.dl-btn');
+    if(dlBtn){ downloadImage(findImg(dlBtn.dataset.id)); return; }
+    const delBtn = e.target.closest('.del-btn');
+    if(delBtn){
+      state.images = state.images.filter(r=>r.id !== delBtn.dataset.id);
+      renderGallery();
+      return;
+    }
+  });
+
+  function findImg(id){ return state.images.find(r=>r.id===id); }
+
+  function updateBatchbar(){
+    const selected = state.images.filter(r=>r.selected);
+    batchbar.classList.toggle('show', selected.length>0);
+    selCount.textContent = selected.length + ' محددة';
+  }
+
+  $('#selectAllBtn').addEventListener('click', ()=>{
+    const allSelected = state.images.every(r=>r.selected) && state.images.length>0;
+    state.images.forEach(r=>r.selected = !allSelected);
+    renderGallery();
+  });
+  $('#batchClear').addEventListener('click', ()=>{
+    state.images.forEach(r=>r.selected=false);
+    renderGallery();
+  });
+  $('#batchDelete').addEventListener('click', ()=>{
+    state.images = state.images.filter(r=>!r.selected);
+    renderGallery();
+  });
+  $('#batchBg').addEventListener('click', ()=>{
+    state.images.filter(r=>r.selected).forEach(rec=>{
+      snapshotHistory(rec);
+      autoRemoveBackground(rec, 32);
+    });
+    renderGallery();
+    toast('تمت إزالة الخلفية للصور المحددة');
+  });
+  $('#batchZip').addEventListener('click', ()=> zipDownload(state.images.filter(r=>r.selected)));
+  $('#zipAllBtn').addEventListener('click', ()=> zipDownload(state.images));
+
+  /* batch resize popover */
+  const resizePopover = $('#resizePopover');
+  $('#batchResizeBtn').addEventListener('click', (e)=>{
+    const rect = e.target.getBoundingClientRect();
+    resizePopover.style.top = (window.scrollY + rect.bottom + 8) + 'px';
+    resizePopover.style.left = (window.scrollX + rect.left) + 'px';
+    resizePopover.classList.add('show');
+  });
+  $('#popCancel').addEventListener('click', ()=>resizePopover.classList.remove('show'));
+  $('#popApply').addEventListener('click', ()=>{
+    const w = parseInt($('#popW').value,10), h = parseInt($('#popH').value,10);
+    if(w>0 && h>0){
+      state.images.filter(r=>r.selected).forEach(rec=>{
+        snapshotHistory(rec);
+        resizeCanvas(rec, w, h);
+      });
+      renderGallery();
+      toast('تم تغيير الحجم للصور المحددة');
+    }
+    resizePopover.classList.remove('show');
+  });
+  document.addEventListener('click', e=>{
+    if(!resizePopover.contains(e.target) && e.target.id!=='batchResizeBtn'){
+      resizePopover.classList.remove('show');
+    }
+  });
+
+  /* ---------------- background removal core ---------------- */
+  function colorDist(r1,g1,b1,r2,g2,b2){
+    const dr=r1-r2, dg=g1-g2, db=b1-b2;
+    return Math.sqrt(dr*dr+dg*dg+db*db);
+  }
+
+  function floodRemove(rec, refColor, seedPoints, tolerance){
+    const w = rec.canvas.width, h = rec.canvas.height;
+    const imgData = rec.ctx.getImageData(0,0,w,h);
+    const data = imgData.data;
+    const visited = new Uint8Array(w*h);
+    const stack = [];
+    seedPoints.forEach(([x,y])=>{
+      if(x>=0 && x<w && y>=0 && y<h) stack.push(y*w+x);
+    });
+
+    while(stack.length){
+      const p = stack.pop();
+      if(visited[p]) continue;
+      visited[p] = 1;
+      const i = p*4;
+      if(data[i+3]===0) continue;
+      const dist = colorDist(data[i],data[i+1],data[i+2], refColor[0],refColor[1],refColor[2]);
+      if(dist > tolerance) continue;
+      data[i+3] = 0;
+      const x = p % w, y = (p / w) | 0;
+      if(x>0 && !visited[p-1]) stack.push(p-1);
+      if(x<w-1 && !visited[p+1]) stack.push(p+1);
+      if(y>0 && !visited[p-w]) stack.push(p-w);
+      if(y<h-1 && !visited[p+w]) stack.push(p+w);
+    }
+    rec.ctx.putImageData(imgData,0,0);
+  }
+
+  function autoRemoveBackground(rec, tolerance){
+    const w = rec.canvas.width, h = rec.canvas.height;
+    const d = rec.ctx.getImageData(0,0,w,h).data;
+    const corners = [[0,0],[w-1,0],[0,h-1],[w-1,h-1]];
+    let r=0,g=0,b=0;
+    corners.forEach(([x,y])=>{
+      const i = (y*w+x)*4;
+      r+=d[i]; g+=d[i+1]; b+=d[i+2];
+    });
+    r/=4; g/=4; b/=4;
+    const seeds = [];
+    for(let x=0;x<w;x++){ seeds.push([x,0]); seeds.push([x,h-1]); }
+    for(let y=0;y<h;y++){ seeds.push([0,y]); seeds.push([w-1,y]); }
+    floodRemove(rec, [r,g,b], seeds, tolerance);
+  }
+
+  function clickRemoveBackground(rec, x, y, tolerance){
+    const i = (y*rec.canvas.width + x)*4;
+    const d = rec.ctx.getImageData(x,y,1,1).data;
+    floodRemove(rec, [d[0],d[1],d[2]], [[x,y]], tolerance);
+  }
+
+  function snapshotHistory(rec){
+    rec.history = {
+      w: rec.canvas.width, h: rec.canvas.height,
+      data: rec.ctx.getImageData(0,0,rec.canvas.width, rec.canvas.height)
+    };
+  }
+
+  function undo(rec){
+    if(!rec.history) { toast('لا يوجد تعديل للتراجع عنه'); return; }
+    rec.canvas.width = rec.history.w;
+    rec.canvas.height = rec.history.h;
+    rec.ctx.putImageData(rec.history.data, 0, 0);
+    rec.history = null;
+  }
+
+  function resetToOriginal(rec){
+    rec.canvas.width = rec.originalW;
+    rec.canvas.height = rec.originalH;
+    rec.ctx.putImageData(rec.originalData, 0, 0);
+    rec.history = null;
+  }
+
+  /* ---------------- resize / crop ---------------- */
+  function resizeCanvas(rec, newW, newH){
+    const tmp = document.createElement('canvas');
+    tmp.width = newW; tmp.height = newH;
+    const tctx = tmp.getContext('2d');
+    tctx.imageSmoothingQuality = 'high';
+    tctx.drawImage(rec.canvas, 0, 0, newW, newH);
+    rec.canvas.width = newW; rec.canvas.height = newH;
+    rec.ctx.clearRect(0,0,newW,newH);
+    rec.ctx.drawImage(tmp,0,0);
+  }
+
+  function cropCanvas(rec, sx, sy, sw, sh){
+    const tmp = document.createElement('canvas');
+    tmp.width = sw; tmp.height = sh;
+    tmp.getContext('2d').drawImage(rec.canvas, sx, sy, sw, sh, 0, 0, sw, sh);
+    rec.canvas.width = sw; rec.canvas.height = sh;
+    rec.ctx.clearRect(0,0,sw,sh);
+    rec.ctx.drawImage(tmp,0,0);
+  }
+
+  /* ---------------- download ---------------- */
+  function downloadImage(rec){
+    rec.canvas.toBlob(blob=>{
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = rec.name;
+      a.click();
+      setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+    }, 'image/png');
+  }
+
+  function zipDownload(list){
+    if(!list.length){ toast('حدد صورًا أولًا'); return; }
+    list.forEach((rec, idx)=>{
+      setTimeout(()=> downloadImage(rec), idx * 350);
+    });
+    toast('جاري تنزيل ' + list.length + ' صورة...');
+  }
+
+  /* ================= EDITOR ================= */
+  const overlay = $('#overlay');
+  const editorTitle = $('#editorTitle');
+  const canvasAfter = $('#canvasAfter');
+  const canvasBefore = $('#canvasBefore');
+  const compareSlider = $('#compareSlider');
+  const compareLabels = $('#compareLabels');
+  const compareField = $('#compareField');
+  const canvasZone = $('#canvasZone');
+
+  let brushActive = false;
+  let brushMode = 'erase';
+  let painting = false;
+  let cropRect = null;
+  let cropStart = null;
+  let pickModeActive = false;
+
+  function openEditor(id){
+    state.activeId = id;
+    const rec = findImg(id);
+    editorTitle.textContent = rec.name;
+    overlay.classList.add('show');
+    resetPanelsUI();
+    drawEditorCanvas();
+  }
+
+  function activeRec(){ return findImg(state.activeId); }
+
+  function resetPanelsUI(){
+    $$('.tab').forEach(t=>t.classList.remove('active'));
+    $('.tab[data-tab="bg"]').classList.add('active');
+    $$('.panel').forEach(p=>p.classList.remove('active'));
+    $('#panel-bg').classList.add('active');
+    brushActive = false; $('#brushToggle').textContent = 'تفعيل الفرشاة';
+    pickModeActive = false; $('#pickColorBtn').classList.remove('btn-accent');
+    cropRect = null; clearCropOverlay();
+  }
+
+  $('#closeEditor').addEventListener('click', ()=>{
+    overlay.classList.remove('show');
+    renderGallery();
+  });
+  overlay.addEventListener('click', e=>{ if(e.target===overlay){ overlay.classList.remove('show'); renderGallery(); } });
+
+  $$('.tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      $$('.tab').forEach(t=>t.classList.remove('active'));
+      tab.classList.add('active');
+      $$('.panel').forEach(p=>p.classList.remove('active'));
+      $('#panel-'+tab.dataset.tab).classList.add('active');
+      cropRect = null; clearCropOverlay();
+      drawEditorCanvas();
+    });
+  });
+
+  function drawEditorCanvas(){
+    const rec = activeRec();
+    if(!rec) return;
+    const w = rec.canvas.width, h = rec.canvas.height;
+
+    canvasAfter.width = w; canvasAfter.height = h;
+    canvasAfter.getContext('2d').drawImage(rec.canvas,0,0);
+
+    const sameDims = (w===rec.originalW && h===rec.originalH);
+    const activeTab = $('.tab.active').dataset.tab;
+    const showCompare = sameDims && activeTab==='bg';
+
+    canvasBefore.width = w; canvasBefore.height = h;
+    if(showCompare){
+      const octx = canvasBefore.getContext('2d');
+      octx.putImageData(rec.originalData,0,0);
+      canvasBefore.style.display='block';
+      compareSlider.style.display='block';
+      compareLabels.style.display='flex';
+      compareField.style.display='block';
+      applyCompareClip();
+    } else {
+      canvasBefore.style.display='none';
+      compareSlider.style.display='none';
+      compareLabels.style.display='none';
+      compareField.style.display='none';
+    }
+  }
+
+  function applyCompareClip(){
+    const v = compareSlider.value;
+    canvasBefore.style.clipPath = `inset(0 0 0 ${v}%)`;
+  }
+  compareSlider.addEventListener('input', applyCompareClip);
+
+  /* --- tolerance / auto remove --- */
+  const toleranceInput = $('#tolerance');
+  toleranceInput.addEventListener('input', ()=>{ $('#tolVal').textContent = toleranceInput.value; });
+
+  $('#autoRemove').addEventListener('click', ()=>{
+    const rec = activeRec();
+    snapshotHistory(rec);
+    autoRemoveBackground(rec, parseInt(toleranceInput.value,10));
+    drawEditorCanvas();
+    toast('تمت إزالة الخلفية');
+  });
+
+  $('#pickColorBtn').addEventListener('click', ()=>{
+    pickModeActive = !pickModeActive;
+    $('#pickColorBtn').classList.toggle('btn-accent', pickModeActive);
+    if(pickModeActive){ brushActive=false; $('#brushToggle').textContent='تفعيل الفرشاة'; }
+  });
+
+  canvasAfter.addEventListener('click', e=>{
+    if(!pickModeActive) return;
+    const rec = activeRec();
+    const rect = canvasAfter.getBoundingClientRect();
+    const scaleX = canvasAfter.width / rect.width;
+    const scaleY = canvasAfter.height / rect.height;
+    const x = Math.floor((e.clientX - rect.left) * scaleX);
+    const y = Math.floor((e.clientY - rect.top) * scaleY);
+    snapshotHistory(rec);
+    clickRemoveBackground(rec, x, y, parseInt(toleranceInput.value,10));
+    drawEditorCanvas();
+    pickModeActive = false;
+    $('#pickColorBtn').classList.remove('btn-accent');
+    toast('تمت إزالة اللون المحدد');
+  });
+
+  /* --- brush --- */
+  $$('.seg-brush').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      $$('.seg-brush').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      brushMode = b.dataset.mode;
+    });
+  });
+  const brushSizeInput = $('#brushSize');
+  brushSizeInput.addEventListener('input', ()=>{ $('#brushVal').textContent = brushSizeInput.value; });
+
+  $('#brushToggle').addEventListener('click', ()=>{
+    brushActive = !brushActive;
+    $('#brushToggle').textContent = brushActive ? 'إيقاف الفرشاة' : 'تفعيل الفرشاة';
+    if(brushActive){ pickModeActive=false; $('#pickColorBtn').classList.remove('btn-accent'); }
+  });
+
+  function canvasCoords(e){
+    const rect = canvasAfter.getBoundingClientRect();
+    const scaleX = canvasAfter.width / rect.width;
+    const scaleY = canvasAfter.height / rect.height;
+    return {
+      x: Math.floor((e.clientX - rect.left) * scaleX),
+      y: Math.floor((e.clientY - rect.top) * scaleY)
+    };
+  }
+
+  function paintAt(rec, x, y, radius){
+    const w = rec.canvas.width, h = rec.canvas.height;
+    if(brushMode==='erase'){
+      rec.ctx.save();
+      rec.ctx.globalCompositeOperation = 'destination-out';
+      rec.ctx.beginPath();
+      rec.ctx.arc(x,y,radius,0,Math.PI*2);
+      rec.ctx.fill();
+      rec.ctx.restore();
+    } else {
+      // restore from original pixels within a circular region
+      const ox = Math.max(0, x-radius), oy = Math.max(0, y-radius);
+      const ow = Math.min(w, x+radius) - ox, oh = Math.min(h, y+radius) - oy;
+      if(ow<=0 || oh<=0) return;
+      const src = rec.originalData;
+      const cur = rec.ctx.getImageData(ox,oy,ow,oh);
+      for(let j=0;j<oh;j++){
+        for(let i=0;i<ow;i++){
+          const gx = ox+i, gy = oy+j;
+          const dx = gx-x, dy = gy-y;
+          if(dx*dx+dy*dy > radius*radius) continue;
+          const srcI = (gy*w+gx)*4;
+          const curI = (j*ow+i)*4;
+          cur.data[curI] = src.data[srcI];
+          cur.data[curI+1] = src.data[srcI+1];
+          cur.data[curI+2] = src.data[srcI+2];
+          cur.data[curI+3] = src.data[srcI+3];
+        }
+      }
+      rec.ctx.putImageData(cur, ox, oy);
+    }
+  }
+
+  canvasAfter.addEventListener('mousedown', e=>{
+    if(!brushActive) return;
+    const rec = activeRec();
+    snapshotHistory(rec);
+    painting = true;
+    const {x,y} = canvasCoords(e);
+    paintAt(rec, x, y, parseInt(brushSizeInput.value,10));
+    canvasAfter.getContext('2d').drawImage(rec.canvas,0,0);
+  });
+  window.addEventListener('mousemove', e=>{
+    if(!painting || !brushActive) return;
+    const rec = activeRec();
+    const {x,y} = canvasCoords(e);
+    paintAt(rec, x, y, parseInt(brushSizeInput.value,10));
+    canvasAfter.getContext('2d').clearRect(0,0,canvasAfter.width,canvasAfter.height);
+    canvasAfter.getContext('2d').drawImage(rec.canvas,0,0);
+  });
+  window.addEventListener('mouseup', ()=>{ painting=false; });
+
+  /* --- resize panel --- */
+  const resizeW = $('#resizeW'), resizeH = $('#resizeH'), lockAspect = $('#lockAspect');
+  let aspectRatio = 1;
+
+  $$('.tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      if(tab.dataset.tab==='resize'){
+        const rec = activeRec();
+        resizeW.value = rec.canvas.width;
+        resizeH.value = rec.canvas.height;
+        aspectRatio = rec.canvas.width / rec.canvas.height;
+      }
+    });
+  });
+
+  resizeW.addEventListener('input', ()=>{
+    if(lockAspect.checked){ resizeH.value = Math.round(resizeW.value / aspectRatio); }
+  });
+  resizeH.addEventListener('input', ()=>{
+    if(lockAspect.checked){ resizeW.value = Math.round(resizeH.value * aspectRatio); }
+  });
+
+  $$('.preset').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      resizeW.value = btn.dataset.w;
+      resizeH.value = btn.dataset.h;
+    });
+  });
+
+  $('#applyResize').addEventListener('click', ()=>{
+    const rec = activeRec();
+    const w = parseInt(resizeW.value,10), h = parseInt(resizeH.value,10);
+    if(w>0 && h>0){
+      snapshotHistory(rec);
+      resizeCanvas(rec, w, h);
+      drawEditorCanvas();
+      toast('تم تغيير الحجم إلى ' + w + '×' + h);
+    }
+  });
+
+  /* --- crop panel --- */
+  function clearCropOverlay(){
+    const old = $('.crop-overlay');
+    if(old) old.remove();
+  }
+
+  canvasZone.addEventListener('mousedown', e=>{
+    if($('.tab.active').dataset.tab !== 'crop') return;
+    cropStart = canvasCoordsZone(e);
+    clearCropOverlay();
+    const box = document.createElement('div');
+    box.className = 'crop-overlay';
+    canvasZone.appendChild(box);
+  });
+
+  function canvasCoordsZone(e){
+    const rect = canvasAfter.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top, rect };
+  }
+
+  window.addEventListener('mousemove', e=>{
+    if($('.tab.active').dataset.tab !== 'crop' || !cropStart) return;
+    const box = $('.crop-overlay');
+    if(!box) return;
+    const now = canvasCoordsZone(e);
+    const rect = cropStart.rect;
+    const x1 = Math.max(0, Math.min(cropStart.x, now.x));
+    const y1 = Math.max(0, Math.min(cropStart.y, now.y));
+    const x2 = Math.min(rect.width, Math.max(cropStart.x, now.x));
+    const y2 = Math.min(rect.height, Math.max(cropStart.y, now.y));
+    box.style.left = (rect.left - canvasZone.getBoundingClientRect().left + x1) + 'px';
+    box.style.top = (rect.top - canvasZone.getBoundingClientRect().top + y1) + 'px';
+    box.style.width = (x2-x1) + 'px';
+    box.style.height = (y2-y1) + 'px';
+    const scaleX = canvasAfter.width / rect.width;
+    const scaleY = canvasAfter.height / rect.height;
+    cropRect = {
+      sx: Math.round(x1*scaleX), sy: Math.round(y1*scaleY),
+      sw: Math.round((x2-x1)*scaleX), sh: Math.round((y2-y1)*scaleY)
+    };
+  });
+  window.addEventListener('mouseup', ()=>{ cropStart = null; });
+
+  $('#clearCrop').addEventListener('click', ()=>{ cropRect=null; clearCropOverlay(); });
+  $('#applyCrop').addEventListener('click', ()=>{
+    if(!cropRect || cropRect.sw<=2 || cropRect.sh<=2){ toast('حدد منطقة القص أولًا'); return; }
+    const rec = activeRec();
+    snapshotHistory(rec);
+    cropCanvas(rec, cropRect.sx, cropRect.sy, cropRect.sw, cropRect.sh);
+    cropRect = null; clearCropOverlay();
+    drawEditorCanvas();
+    toast('تم القص');
+  });
+
+  /* --- footer actions --- */
+  $('#undoBtn').addEventListener('click', ()=>{
+    const rec = activeRec();
+    undo(rec);
+    drawEditorCanvas();
+    toast('تم التراجع');
+  });
+  $('#resetBtn').addEventListener('click', ()=>{
+    const rec = activeRec();
+    resetToOriginal(rec);
+    drawEditorCanvas();
+    toast('تمت استعادة الصورة الأصلية');
+  });
+  $('#downloadOne').addEventListener('click', ()=> downloadImage(activeRec()));
+
+})();
+</script>
+</body>
+</html>
