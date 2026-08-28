@@ -383,6 +383,22 @@ input[type="range"]{width:100%;accent-color:var(--accent);}
             <button class="btn btn-ghost stack-btn" id="brushToggle" style="margin-top:8px;">تفعيل الفرشاة</button>
           </div>
 
+          <div class="field" style="margin-top:18px;">
+            <label>إضافة لون خلفية</label>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+              <input type="color" id="bgColorPicker" value="#ffffff" style="width:42px;height:36px;border:1px solid var(--border);border-radius:8px;padding:2px;cursor:pointer;flex-shrink:0;">
+              <input type="text" id="bgColorHex" value="#ffffff" maxlength="7" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:7px;font-size:13px;direction:ltr;">
+            </div>
+            <div class="presets" style="margin-bottom:10px;">
+              <button class="btn btn-ghost bg-swatch" data-color="#ffffff">أبيض</button>
+              <button class="btn btn-ghost bg-swatch" data-color="#000000">أسود</button>
+              <button class="btn btn-ghost bg-swatch" data-color="#F1ECDF">بيج</button>
+              <button class="btn btn-ghost bg-swatch" data-color="#1F4D3A">أخضر</button>
+            </div>
+            <button class="btn btn-accent stack-btn" id="applyBgColor">تطبيق اللون كخلفية</button>
+            <p class="sub">شيل الخلفية الأصلية أولًا (إزالة تلقائية أو نقر على اللون) قبل ما تضيف لون جديد، وإلا اللون رح يظهر فوق الصورة كلها.</p>
+          </div>
+
           <div class="field" id="compareField" style="display:none;">
             <label>مقارنة قبل / بعد</label>
             <p class="sub">اسحب المقبض على الصورة للمقارنة.</p>
@@ -932,6 +948,41 @@ input[type="range"]{width:100%;accent-color:var(--accent);}
     pickModeActive = false;
     $('#pickColorBtn').classList.remove('btn-accent');
     toast('تمت إزالة اللون المحدد');
+  });
+
+  /* --- add solid color background --- */
+  const bgColorPicker = $('#bgColorPicker');
+  const bgColorHex = $('#bgColorHex');
+
+  bgColorPicker.addEventListener('input', ()=>{ bgColorHex.value = bgColorPicker.value; });
+  bgColorHex.addEventListener('input', ()=>{
+    if(/^#[0-9a-fA-F]{6}$/.test(bgColorHex.value)) bgColorPicker.value = bgColorHex.value;
+  });
+  $$('.bg-swatch').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      bgColorPicker.value = btn.dataset.color;
+      bgColorHex.value = btn.dataset.color;
+    });
+  });
+
+  function fillBackgroundColor(rec, color){
+    const w = rec.canvas.width, h = rec.canvas.height;
+    const tmp = document.createElement('canvas');
+    tmp.width = w; tmp.height = h;
+    const tctx = tmp.getContext('2d');
+    tctx.fillStyle = color;
+    tctx.fillRect(0,0,w,h);
+    tctx.drawImage(rec.canvas,0,0);
+    rec.ctx.clearRect(0,0,w,h);
+    rec.ctx.drawImage(tmp,0,0);
+  }
+
+  $('#applyBgColor').addEventListener('click', ()=>{
+    const rec = activeRec();
+    snapshotHistory(rec);
+    fillBackgroundColor(rec, bgColorPicker.value);
+    drawEditorCanvas();
+    toast('تمت إضافة لون الخلفية');
   });
 
   /* --- brush --- */
