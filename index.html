@@ -284,7 +284,53 @@ input[type="range"]{width:100%;accent-color:var(--accent);}
   </div>
   <input type="file" id="fileInput" accept="image/*" multiple style="display:none;">
 
+  <div style="text-align:center;margin-top:12px;">
+    <button class="btn btn-ghost btn-sm" id="toggleAiPanel">✨ توليد صورة بالذكاء الاصطناعي</button>
+  </div>
+
+  <div id="aiPanel" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-top:14px;">
+    <div class="field">
+      <label>وصف الصورة يلي بدك تولّدها</label>
+      <textarea id="aiPrompt" rows="2" placeholder="مثلاً: خلفية بيضاء ناعمة بإضاءة استوديو لمنتجات غذائية" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13.5px;resize:vertical;"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+      <div style="flex:1;min-width:140px;">
+        <label style="display:block;font-size:12.5px;font-weight:700;margin-bottom:6px;">النمط</label>
+        <select id="aiModel" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:7px;">
+          <option value="flux">واقعي (Flux)</option>
+          <option value="turbo">سريع (Turbo)</option>
+          <option value="flux-realism">تصوير واقعي</option>
+          <option value="flux-anime">أنمي</option>
+          <option value="flux-3d">ثلاثي الأبعاد</option>
+        </select>
+      </div>
+      <div style="flex:1;min-width:140px;">
+        <label style="display:block;font-size:12.5px;font-weight:700;margin-bottom:6px;">المقاس</label>
+        <select id="aiSize" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:7px;">
+          <option value="1024x1024">مربع 1024×1024</option>
+          <option value="1024x768">أفقي 1024×768</option>
+          <option value="768x1024">عمودي 768×1024</option>
+          <option value="512x512">مربع صغير 512×512</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-accent" id="aiGenerateBtn">توليد الصورة</button>
+    <span id="aiStatus" style="font-size:12.5px;color:var(--muted);margin-right:10px;"></span>
+
+    <div id="aiPreviewWrap" style="display:none;margin-top:16px;">
+      <div class="thumb-wrap" style="max-width:280px;border-radius:10px;overflow:hidden;">
+        <img id="aiPreviewImg" class="thumb" crossorigin="anonymous">
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button class="btn btn-primary btn-sm" id="aiAddBtn">إضافة إلى المعرض</button>
+        <a class="btn btn-ghost btn-sm" id="aiOpenLink" target="_blank" rel="noopener">فتح بصفحة جديدة</a>
+      </div>
+    </div>
+    <p class="sub" style="margin-top:12px;">التوليد بيصير عن طريق خدمة خارجية مجانية (Pollinations)، فبيحتاج اتصال إنترنت، والنتيجة ممكن تختلف كل مرة حتى لنفس الوصف.</p>
+  </div>
+
   <p class="hint" id="emptyHint"><b>ما في صور بعد.</b> ارفع صورة منتج وابدأ: إزالة خلفية، تغيير حجم، وتنزيل جاهزة للمتجر.</p>
+
 
   <div id="batchbar" class="batchbar">
     <span id="selCount">0 محددة</span>
@@ -355,6 +401,7 @@ input[type="range"]{width:100%;accent-color:var(--accent);}
         <div class="tabs">
           <div class="tab active" data-tab="bg">الخلفية</div>
           <div class="tab" data-tab="remove">إزالة عنصر</div>
+          <div class="tab" data-tab="filters">فلاتر</div>
           <div class="tab" data-tab="resize">الحجم</div>
           <div class="tab" data-tab="crop">القص</div>
         </div>
@@ -416,6 +463,36 @@ input[type="range"]{width:100%;accent-color:var(--accent);}
           <button class="btn btn-ghost stack-btn" id="applyRemoveClear">تطبيق — إفراغ (شفاف)</button>
           <button class="btn btn-ghost stack-btn" id="clearRemoveMask">مسح التحديد</button>
           <p class="sub">"تعبئة ذكية" بتناسب الخلفيات البسيطة (لون موحد أو تدرّج بسيط). للخلفيات المعقدة استخدم "إفراغ" ثم صدّر PNG شفاف.</p>
+        </div>
+
+        <div class="panel" id="panel-filters">
+          <div class="field">
+            <label>السطوع</label>
+            <input type="range" id="fBrightness" min="40" max="180" value="100">
+            <div class="range-row"><span>غامق</span><span id="fBrightnessVal">100%</span><span>فاتح</span></div>
+          </div>
+          <div class="field">
+            <label>التباين</label>
+            <input type="range" id="fContrast" min="40" max="180" value="100">
+            <div class="range-row"><span>ناعم</span><span id="fContrastVal">100%</span><span>حاد</span></div>
+          </div>
+          <div class="field">
+            <label>التشبع اللوني</label>
+            <input type="range" id="fSaturate" min="0" max="220" value="100">
+            <div class="range-row"><span>باهت</span><span id="fSaturateVal">100%</span><span>زاهي</span></div>
+          </div>
+          <div class="field">
+            <label>فلاتر جاهزة</label>
+            <div class="presets">
+              <button class="btn btn-ghost filter-preset" data-preset="none">عادي</button>
+              <button class="btn btn-ghost filter-preset" data-preset="grayscale">أبيض وأسود</button>
+              <button class="btn btn-ghost filter-preset" data-preset="sepia">دافئ</button>
+              <button class="btn btn-ghost filter-preset" data-preset="cool">بارد</button>
+              <button class="btn btn-ghost filter-preset" data-preset="invert">عكس الألوان</button>
+            </div>
+          </div>
+          <button class="btn btn-accent stack-btn" id="applyFilters">تطبيق الفلتر</button>
+          <button class="btn btn-ghost stack-btn" id="resetFilters">إعادة تعيين</button>
         </div>
 
         <div class="panel" id="panel-resize">
@@ -513,38 +590,102 @@ input[type="range"]{width:100%;accent-color:var(--accent);}
     files.forEach(loadFile);
   }
 
+  function addImageRecord(img, baseName){
+    let w = img.naturalWidth, h = img.naturalHeight;
+    const scale = Math.min(1, MAX_DIM / Math.max(w,h));
+    w = Math.round(w*scale); h = Math.round(h*scale);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d', {willReadFrequently:true});
+    ctx.drawImage(img, 0, 0, w, h);
+
+    const originalData = ctx.getImageData(0,0,w,h);
+
+    const record = {
+      id: uid(),
+      baseName,
+      canvas, ctx,
+      originalData,
+      originalW: w, originalH: h,
+      history: null,
+      selected: false
+    };
+    state.images.push(record);
+    renderGallery();
+    return record;
+  }
+
   function loadFile(file){
     const reader = new FileReader();
     reader.onload = e=>{
       const img = new Image();
       img.onload = ()=>{
-        let w = img.naturalWidth, h = img.naturalHeight;
-        const scale = Math.min(1, MAX_DIM / Math.max(w,h));
-        w = Math.round(w*scale); h = Math.round(h*scale);
-
-        const canvas = document.createElement('canvas');
-        canvas.width = w; canvas.height = h;
-        const ctx = canvas.getContext('2d', {willReadFrequently:true});
-        ctx.drawImage(img, 0, 0, w, h);
-
-        const originalData = ctx.getImageData(0,0,w,h);
-
-        const record = {
-          id: uid(),
-          baseName: file.name.replace(/\.[^.]+$/, ''),
-          canvas, ctx,
-          originalData,
-          originalW: w, originalH: h,
-          history: null,
-          selected: false
-        };
-        state.images.push(record);
-        renderGallery();
+        addImageRecord(img, file.name.replace(/\.[^.]+$/, ''));
       };
       img.src = e.target.result;
     };
     reader.readAsDataURL(file);
   }
+
+  /* ---------------- AI image generation ---------------- */
+  const toggleAiPanel = $('#toggleAiPanel');
+  const aiPanel = $('#aiPanel');
+  const aiPrompt = $('#aiPrompt');
+  const aiModel = $('#aiModel');
+  const aiSize = $('#aiSize');
+  const aiGenerateBtn = $('#aiGenerateBtn');
+  const aiStatus = $('#aiStatus');
+  const aiPreviewWrap = $('#aiPreviewWrap');
+  const aiPreviewImg = $('#aiPreviewImg');
+  const aiAddBtn = $('#aiAddBtn');
+  const aiOpenLink = $('#aiOpenLink');
+  let aiGeneratedImg = null;
+
+  toggleAiPanel.addEventListener('click', ()=>{
+    const show = aiPanel.style.display === 'none';
+    aiPanel.style.display = show ? 'block' : 'none';
+  });
+
+  aiGenerateBtn.addEventListener('click', ()=>{
+    const prompt = aiPrompt.value.trim();
+    if(!prompt){ toast('اكتب وصف الصورة أولًا'); return; }
+    const [w,h] = aiSize.value.split('x');
+    const seed = Math.floor(Math.random()*1000000);
+    const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${w}&height=${h}&model=${aiModel.value}&nologo=true&seed=${seed}`;
+
+    aiGenerateBtn.disabled = true;
+    aiStatus.textContent = 'جاري التوليد… قد يستغرق بضع ثوانٍ';
+    aiPreviewWrap.style.display = 'none';
+    aiGeneratedImg = null;
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = ()=>{
+      aiGeneratedImg = img;
+      aiPreviewImg.src = url;
+      aiOpenLink.href = url;
+      aiPreviewWrap.style.display = 'block';
+      aiStatus.textContent = 'تم التوليد ✓';
+      aiGenerateBtn.disabled = false;
+    };
+    img.onerror = ()=>{
+      aiStatus.textContent = 'تعذر التوليد — تأكد من الاتصال بالإنترنت وحاول مرة ثانية';
+      aiGenerateBtn.disabled = false;
+    };
+    img.src = url;
+  });
+
+  aiAddBtn.addEventListener('click', ()=>{
+    if(!aiGeneratedImg){ return; }
+    try{
+      const base = 'ai_' + (aiPrompt.value.trim().slice(0,24).replace(/[^a-zA-Z0-9\u0600-\u06FF]+/g,'_') || Date.now());
+      addImageRecord(aiGeneratedImg, base);
+      toast('تمت إضافة الصورة إلى المعرض');
+    } catch(err){
+      toast('تعذرت إضافة الصورة للتعديل — استخدم "فتح بصفحة جديدة" ثم احفظها يدويًا');
+    }
+  });
 
   /* ---------------- gallery rendering ---------------- */
   function renderGallery(){
@@ -853,6 +994,7 @@ input[type="range"]{width:100%;accent-color:var(--accent);}
     pickModeActive = false; $('#pickColorBtn').classList.remove('btn-accent');
     cropRect = null; clearCropOverlay();
     canvasMask.style.display = 'none';
+    resetFiltersUI();
   }
 
   $('#closeEditor').addEventListener('click', ()=>{
@@ -876,6 +1018,11 @@ input[type="range"]{width:100%;accent-color:var(--accent);}
         canvasMask.style.display = 'block';
       } else {
         canvasMask.style.display = 'none';
+      }
+      if(tab.dataset.tab === 'filters'){
+        updateFilterPreview();
+      } else {
+        canvasAfter.style.filter = '';
       }
       drawEditorCanvas();
     });
@@ -1282,6 +1429,61 @@ input[type="range"]{width:100%;accent-color:var(--accent);}
     }
     rec.ctx.putImageData(imgData,0,0);
   }
+
+  /* --- filters --- */
+  let filterState = {brightness:100, contrast:100, saturate:100, grayscale:0, sepia:0, invert:0};
+
+  function buildFilterString(){
+    return `brightness(${filterState.brightness}%) contrast(${filterState.contrast}%) saturate(${filterState.saturate}%) grayscale(${filterState.grayscale}%) sepia(${filterState.sepia}%) invert(${filterState.invert}%)`;
+  }
+  function updateFilterPreview(){ canvasAfter.style.filter = buildFilterString(); }
+
+  function syncFilterSliders(){
+    $('#fBrightness').value = filterState.brightness; $('#fBrightnessVal').textContent = filterState.brightness+'%';
+    $('#fContrast').value = filterState.contrast; $('#fContrastVal').textContent = filterState.contrast+'%';
+    $('#fSaturate').value = filterState.saturate; $('#fSaturateVal').textContent = filterState.saturate+'%';
+  }
+
+  function resetFiltersUI(){
+    filterState = {brightness:100, contrast:100, saturate:100, grayscale:0, sepia:0, invert:0};
+    syncFilterSliders();
+    canvasAfter.style.filter = '';
+  }
+
+  $('#fBrightness').addEventListener('input', e=>{ filterState.brightness = +e.target.value; $('#fBrightnessVal').textContent = filterState.brightness+'%'; updateFilterPreview(); });
+  $('#fContrast').addEventListener('input', e=>{ filterState.contrast = +e.target.value; $('#fContrastVal').textContent = filterState.contrast+'%'; updateFilterPreview(); });
+  $('#fSaturate').addEventListener('input', e=>{ filterState.saturate = +e.target.value; $('#fSaturateVal').textContent = filterState.saturate+'%'; updateFilterPreview(); });
+
+  $$('.filter-preset').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const p = btn.dataset.preset;
+      filterState = {brightness:100, contrast:100, saturate:100, grayscale:0, sepia:0, invert:0};
+      if(p==='grayscale') filterState.grayscale = 100;
+      if(p==='sepia'){ filterState.sepia = 75; filterState.brightness = 105; }
+      if(p==='cool'){ filterState.saturate = 75; filterState.brightness = 107; filterState.contrast = 105; }
+      if(p==='invert') filterState.invert = 100;
+      syncFilterSliders();
+      updateFilterPreview();
+    });
+  });
+
+  $('#resetFilters').addEventListener('click', resetFiltersUI);
+
+  $('#applyFilters').addEventListener('click', ()=>{
+    const rec = activeRec();
+    snapshotHistory(rec);
+    const w = rec.canvas.width, h = rec.canvas.height;
+    const tmp = document.createElement('canvas');
+    tmp.width = w; tmp.height = h;
+    const tctx = tmp.getContext('2d');
+    tctx.filter = buildFilterString();
+    tctx.drawImage(rec.canvas, 0, 0);
+    rec.ctx.clearRect(0,0,w,h);
+    rec.ctx.drawImage(tmp, 0, 0);
+    resetFiltersUI();
+    drawEditorCanvas();
+    toast('تم تطبيق الفلتر');
+  });
 
   /* --- footer actions --- */
   $('#undoBtn').addEventListener('click', ()=>{
