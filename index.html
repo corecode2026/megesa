@@ -376,6 +376,14 @@ input[type="range"]{width:100%;accent-color:var(--accent);}
   <button class="btn btn-ghost stack-btn" id="popCancel">إلغاء</button>
 </div>
 
+<!-- quick format-conversion popover (per card) -->
+<div class="popover" id="quickFormatPopover" style="width:170px;">
+  <label style="display:block;font-size:12px;font-weight:700;margin-bottom:8px;">تنزيل بصيغة:</label>
+  <button class="btn btn-ghost stack-btn quick-fmt" data-format="png">PNG (شفافة)</button>
+  <button class="btn btn-ghost stack-btn quick-fmt" data-format="jpeg">JPG (خلفية بيضاء)</button>
+  <button class="btn btn-ghost stack-btn quick-fmt" data-format="webp" style="margin-bottom:0;">WEBP</button>
+</div>
+
 <!-- editor modal -->
 <div class="overlay" id="overlay">
   <div class="editor">
@@ -708,7 +716,7 @@ input[type="range"]{width:100%;accent-color:var(--accent);}
         <div class="name">${rec.baseName}</div>
         <div class="actions">
           <button class="btn btn-ghost btn-sm edit-btn" data-id="${rec.id}">تعديل</button>
-          <button class="btn btn-ghost btn-icon btn-sm dl-btn" data-id="${rec.id}" title="تنزيل">
+          <button class="btn btn-ghost btn-icon btn-sm dl-btn" data-id="${rec.id}" title="تنزيل / تحويل الصيغة">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"></path><path d="M8 11l4 4 4-4"></path><path d="M5 20h14"></path></svg>
           </button>
           <button class="btn btn-danger btn-icon btn-sm del-btn" data-id="${rec.id}" title="حذف">
@@ -732,7 +740,7 @@ input[type="range"]{width:100%;accent-color:var(--accent);}
     const editBtn = e.target.closest('.edit-btn');
     if(editBtn){ openEditor(editBtn.dataset.id); return; }
     const dlBtn = e.target.closest('.dl-btn');
-    if(dlBtn){ downloadImage(findImg(dlBtn.dataset.id)); return; }
+    if(dlBtn){ openQuickFormatPopover(dlBtn); return; }
     const delBtn = e.target.closest('.del-btn');
     if(delBtn){
       state.images = state.images.filter(r=>r.id !== delBtn.dataset.id);
@@ -916,8 +924,8 @@ input[type="range"]{width:100%;accent-color:var(--accent);}
     return format==='jpeg' ? 'jpg' : format;
   }
 
-  function exportBlob(rec, cb){
-    const format = formatSelect.value;
+  function exportBlob(rec, cb, formatOverride){
+    const format = formatOverride || formatSelect.value;
     const quality = parseFloat(qualityRange.value);
     let source = rec.canvas;
     let mime = 'image/png';
@@ -936,16 +944,41 @@ input[type="range"]{width:100%;accent-color:var(--accent);}
     source.toBlob(cb, mime, format==='png' ? undefined : quality);
   }
 
-  function downloadImage(rec){
+  function downloadImage(rec, formatOverride){
     exportBlob(rec, blob=>{
       if(!blob){ toast('تعذر تصدير هذه الصيغة من المتصفح'); return; }
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = rec.baseName + '.' + extFor(formatSelect.value);
+      a.download = rec.baseName + '.' + extFor(formatOverride || formatSelect.value);
       a.click();
       setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
-    });
+    }, formatOverride);
   }
+
+  /* quick per-card format popover */
+  const quickFormatPopover = $('#quickFormatPopover');
+  let quickFormatTargetId = null;
+
+  function openQuickFormatPopover(btn){
+    quickFormatTargetId = btn.dataset.id;
+    const rect = btn.getBoundingClientRect();
+    quickFormatPopover.style.top = (window.scrollY + rect.bottom + 8) + 'px';
+    quickFormatPopover.style.left = (window.scrollX + rect.left - 130) + 'px';
+    quickFormatPopover.classList.add('show');
+  }
+  $$('.quick-fmt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(quickFormatTargetId){
+        downloadImage(findImg(quickFormatTargetId), btn.dataset.format);
+      }
+      quickFormatPopover.classList.remove('show');
+    });
+  });
+  document.addEventListener('click', e=>{
+    if(!quickFormatPopover.contains(e.target) && !e.target.closest('.dl-btn')){
+      quickFormatPopover.classList.remove('show');
+    }
+  });
 
   function zipDownload(list){
     if(!list.length){ toast('حدد صورًا أولًا'); return; }
